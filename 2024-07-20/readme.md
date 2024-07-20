@@ -76,13 +76,7 @@ python 这是什么劣习 （使用与实际不一致） 见到不止一个了
 ---
 # 2024-07-20 20:39:15
 
-test: https://github.com/anig1scur/tg-to-github-sync
+弄了一个 tg channel 到 github 同步的玩儿意: https://github.com/anig1scur/tg-to-github-sync 。但现在这个 ifttt ：https://ifttt.com/applets/Ed3eDvEU-if-new-post-in-channel-capricious_eunice-eunice-in-caprice-then-create-a-comment 后半部分还不工作，所以不能算是自动化。
 
 ![Media](./media/41_41_20240720203915.jpg)
-
-
----
-# 2024-07-20 21:08:41
-
-a
 
