@@ -1,8 +1,10 @@
 name: Sync Telegram to GitHub
 
 on:
+  issue_comment:
+    types: [created, deleted]
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/30 * * * *'
 
 jobs:
   sync:
