@@ -11,6 +11,7 @@ API_ID = os.getenv("TELEGRAM_API_ID")
 API_HASH = os.getenv("TELEGRAM_API_HASH")
 SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING")
 CHANNEL_USERNAME = os.getenv("TELEGRAM_CHANNEL_USERNAME")
+MESSAGE_LIMIT = os.getenv("MESSAGE_LIMIT")
 
 # initial Telegram & github client
 client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
@@ -28,10 +29,13 @@ async def process_message_group(messages):
     first_message = messages[0]
     date = first_message.date.strftime("%Y-%m-%d")
     msg_time = first_message.date.strftime("%Y-%m-%d %H:%M:%S")
-    content = f"# {msg_time}\n\n{first_message.text}\n\n"
+
+    content = f"# {msg_time}\n\n{first_message.text or ""}\n\n"
     media_files = []
 
     for message in messages:
+        if not message.text and not message.media:
+            continue
         if message.media:
             if not message.photo:
                 continue
@@ -48,7 +52,9 @@ async def process_message_group(messages):
 
 async def main():
     async with client:
-        messages = await client.get_messages(CHANNEL_USERNAME, limit=20)
+        messages = await client.get_messages(
+            CHANNEL_USERNAME, limit=int(MESSAGE_LIMIT or 5)
+        )
         updates = {}
         message_group = []
 
@@ -60,6 +66,8 @@ async def main():
                 message_group.append(message)
             else:
                 date, content, media_files = await process_message_group(message_group)
+                if not (content or media_files):
+                    continue
                 if date not in updates:
                     updates[date] = {"content": [], "media": []}
                 updates[date]["content"].append(content)
@@ -81,7 +89,7 @@ async def main():
         for date, data in updates.items():
             # 合并当天的所有内容
             full_content = "\n---\n".join(data["content"])
-            file_path = f"{date}/index.md"
+            file_path = f"{date}/readme.md"
             element_list.append(
                 InputGitTreeElement(file_path, "100644", "blob", full_content)
             )
