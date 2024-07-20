@@ -4,17 +4,25 @@ This repository automatically syncs content from a specified Telegram channel to
 
 ## Setup
 
-To set up your own Telegram to GitHub sync:
+### 1. Telegram to GitHub sync
 
 1. Fork this repository.
-2. Create a Telegram bot and get the bot token.
+2. Create a Telegram login session and get the SESSION_STRING: https://github.com/ShivangKakkar/StringSessionBot
 3. Set up GitHub Actions with the necessary secrets:
    - `TELEGRAM_API_ID`
    - `TELEGRAM_API_HASH`
    - `TELEGRAM_SESSION_STRING`
    - `TELEGRAM_CHANNEL_USERNAME`
+   - `MESSAGE_LIMIT` the first time you may need a big limit to backup all messages, then you can lower it down
 4. Customize the `main.py` file if needed.
 5. Enable GitHub Actions in your forked repository.
+
+### 2. IFTTT
+
+cause the github actions doesn't really work in cron situation. We need ifttt to add a comment triggering it. 
+
+[If New post in Telegram Channel, then create a comment for one repo](https://ifttt.com/applets/Ed3eDvEU-if-new-post-in-channel-capricious_eunice-eunice-in-caprice-then-create-a-comment)
+
 
 ## Contributing
 
