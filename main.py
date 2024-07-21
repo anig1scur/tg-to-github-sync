@@ -4,6 +4,7 @@ import json
 import pytz
 import base64
 import logging
+import imagesize
 from datetime import datetime, timedelta
 from telethon import TelegramClient
 from telethon.sessions import StringSession
@@ -101,9 +102,13 @@ async def process_message_group(messages):
             fn = str(message.file.name)
             path = await message.download_media(file=custom_filename(message, fn))
             if path:
-                media_filename = f"{message.id}_{os.path.basename(path)}"
-                media_files.append((f"{date}/{media_filename}", path))
-                group_data['photos'].append(f"{media_filename}")
+                width, height = imagesize.get(path)
+                media_files.append((f"{date}/{path}", path))
+                group_data['photos'].append({
+                    'path': path,
+                    'width': width,
+                    'height': height
+                })
 
         # 处理引用消息（只处理组中第一条消息的引用）
         if group_data['quoted_message'] is None and hasattr(message, 'reply_to') and message.reply_to:
@@ -224,7 +229,7 @@ async def main():
                     )
                 os.remove(local_path)
 
-        if not element_list:
+        if not element_list or not updates:
             logging.info("No new updates found. Skipping commit.")
             return
 

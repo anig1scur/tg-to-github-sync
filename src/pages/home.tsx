@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { VariableSizeList as List, ListChildComponentProps } from 'react-window';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import MediaContainer from "@/components/threadsStyleMediaContainer";
+
+interface Photo {
+  path: string;
+  width: number;
+  height: number;
+}
 
 interface Message {
   id: string;
   text: string;
-  photos: string[];
+  photos: Photo[];
   tags?: string[];
   quoted_message: Message | null;
   created_at: string;
@@ -30,6 +37,7 @@ const MessageList: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const listRef = useRef<List>(null);
+  const lastTop = useRef<number>(0);
 
   const fetchMessages = async (): Promise<void> => {
     try {
@@ -52,6 +60,10 @@ const MessageList: React.FC = () => {
     fetchMessages();
   }, []);
 
+  useEffect(() => {
+    listRef.current?.resetAfterIndex(0);
+  }, [messages]);
+
   const getItemSize = useCallback((index: number) => {
     const message = messages[index];
     const {
@@ -60,9 +72,11 @@ const MessageList: React.FC = () => {
       tags,
       quoted_message,
     } = message;
+
     let height = 150;
-    height += Math.ceil(text.length / 50) * 20;
-    height += photos.length * 200;
+
+    height += Math.ceil(text.length / 20) * 20;
+    height += photos.length ? (photos.length === 1 ? 250 : 220) : 0;
     if (tags && tags.length > 0) {
       height += 30;
     }
@@ -76,25 +90,20 @@ const MessageList: React.FC = () => {
     const message = messages[index];
     const { photos, created_at, text, date, tags, quoted_message } = message;
     return (
-      <div style={ style } className="overflow-x-hidden whitespace-pre-line p-4 border-b border-gray-200 hover:bg-gray-50">
-        <div className="flex items-start">
+      <div style={ style } className=" whitespace-pre-line px-3 py-5 border-b border-gray-200 hover:bg-gray-50">
+        <div className="flex overflow-x-hidden">
           <img
             src={ `./assets/avatars/${ AVATARS[index % AVATARS.length] }` }
             alt={ AUTHOR }
-            className="w-10 h-10 rounded-full mr-4"
+            className="w-10 h-10 rounded-full mr-2 flex-shrink-0"
           />
-          <div className="flex-1">
+          <div className="flex flex-col flex-shrink-1 max-w-[88%] overflow-auto">
             <p className="font-semibold text-gray-900">{ AUTHOR }</p>
             <p className="text-sm text-gray-500">{ new Date(created_at).toLocaleString() }</p>
-            <p className="mt-2 text-gray-700">{ text }</p>
-            { photos.map((photo, index) => (
-              <img
-                key={ index }
-                src={ `./assets/channel/2024-07/${ date }/${ photo }` }
-                alt={ `Photo ${ index + 1 }` }
-                className="mt-2 w-full h-48 object-cover rounded-lg shadow"
-              />
-            )) }
+            <p className="mt-2 text-gray-700 w-full break-all">{ text }</p>
+            <MediaContainer
+              className="mt-2"
+              images={ photos.map(photo => `./assets/channel/2024-07/${ date }/${ photo.path }`) } />
             { tags && tags.length > 0 && (
               <div className="mt-2">
                 { tags.map((tag, index) => (
@@ -119,7 +128,7 @@ const MessageList: React.FC = () => {
   };
 
   return (
-    <div className="h-screen bg-bg max-w-lg w-full mx-auto">
+    <div className="h-screen bg-bg w-full max-w-lg mx-auto">
       <InfiniteScroll
         dataLength={ messages.length }
         next={ fetchMessages }
