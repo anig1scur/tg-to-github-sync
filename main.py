@@ -15,6 +15,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO")
+GITHUB_BRANCH = "gh-pages"
+GITHUB_FOLDER = "assets/channel/"
+
 API_ID = os.getenv("TELEGRAM_API_ID")
 API_HASH = os.getenv("TELEGRAM_API_HASH")
 SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING")
@@ -123,7 +126,6 @@ async def process_message_group(messages):
 
     return date, group_data, media_files
 
-
 async def main():
     async with client:
         channel = await client.get_entity(CHANNEL_USERNAME)
@@ -149,39 +151,52 @@ async def main():
                 date, group_data, media_files = await process_message_group(message_group)
                 if not (group_data['text'] or group_data['photos']):
                     continue
-                if date not in updates:
-                    updates[date] = {"content": [], "media": []}
-                updates[date]["content"].append(group_data)
-                updates[date]["media"].extend(media_files)
+                month = date[:7]  # 获取年月
+                if month not in updates:
+                    updates[month] = {"content": {}, "media": []}
+                if date not in updates[month]["content"]:
+                    updates[month]["content"][date] = []
+                updates[month]["content"][date].append(group_data)
+                updates[month]["media"].extend(media_files)
                 message_group = [message]
 
         if message_group:
             date, group_data, media_files = await process_message_group(message_group)
-            if date not in updates:
-                updates[date] = {"content": [], "media": []}
-            updates[date]["content"].append(group_data)
-            updates[date]["media"].extend(media_files)
+            month = date[:7]
+            if month not in updates:
+                updates[month] = {"content": {}, "media": []}
+            if date not in updates[month]["content"]:
+                updates[month]["content"][date] = []
+            updates[month]["content"][date].append(group_data)
+            updates[month]["media"].extend(media_files)
 
-        master_ref = repo.get_git_ref(f"heads/{repo.default_branch}")
-        master_sha = master_ref.object.sha
+        branch_ref = repo.get_git_ref(f"heads/{GITHUB_BRANCH}")
+        branch_sha = branch_ref.object.sha
 
         element_list = []
-        for date, data in updates.items():
-            file_path = f"{date}/data.json"
-            content = json.dumps(data['content'], ensure_ascii=False, indent=2)
-            try:
-                existing_file = repo.get_contents(file_path, ref=master_sha)
-                if content != existing_file.decoded_content.decode('utf-8'):
-                    element_list.append(InputGitTreeElement(file_path, '100644', 'blob', content))
-            except:
-                element_list.append(InputGitTreeElement(file_path, '100644', 'blob', content))
+        for month, data in updates.items():
+            # 更新每天的 JSON 文件
+            for date, content in data['content'].items():
+                file_path = f"{GITHUB_FOLDER}{month}/{date}.json"
+                content_json = json.dumps(content, ensure_ascii=False, separators=(',', ':'))
+                element_list.append(InputGitTreeElement(file_path, '100644', 'blob', content_json))
 
+            # 更新月度 data.json 文件
+            monthly_data = []
+            for date in sorted(data['content'].keys()):
+                monthly_data.extend(data['content'][date])
+            monthly_file_path = f"{GITHUB_FOLDER}{month}/data.json"
+            monthly_content = json.dumps(monthly_data, ensure_ascii=False, separators=(',', ':'))
+            element_list.append(InputGitTreeElement(monthly_file_path, '100644', 'blob', monthly_content))
+
+            # 处理媒体文件
             for media_path, local_path in data["media"]:
                 with open(local_path, "rb") as file:
                     data = base64.b64encode(file.read())
                     blob = repo.create_git_blob(data.decode("utf-8"), "base64")
+                    github_media_path = f"{GITHUB_FOLDER}{month}/{media_path}"
                     element_list.append(
-                        InputGitTreeElement(media_path, "100644", "blob", sha=blob.sha)
+                        InputGitTreeElement(github_media_path, "100644", "blob", sha=blob.sha)
                     )
                 os.remove(local_path)
 
@@ -189,18 +204,17 @@ async def main():
             logging.info("No new updates found. Skipping commit.")
             return
 
-        base_tree = repo.get_git_tree(master_sha)
+        base_tree = repo.get_git_tree(branch_sha)
         tree = repo.create_git_tree(element_list, base_tree)
-        parent = repo.get_git_commit(master_sha)
+        parent = repo.get_git_commit(branch_sha)
         commit = repo.create_git_commit(
             f"Update for {', '.join(updates.keys())}", tree, [parent]
         )
-        master_ref.edit(commit.sha)
+        branch_ref.edit(commit.sha)
 
         logging.info(
-            f"Successfully updated repository with changes for dates: {', '.join(updates.keys())}"
+            f"Successfully updated repository with changes for months: {', '.join(updates.keys())}"
         )
-
 
 with client:
     client.loop.run_until_complete(main())
