@@ -120,7 +120,7 @@ async def process_message_group(messages):
             except Exception as e:
                 logging.error(f"Error fetching replied message for {message.id}: {e}")
 
-    group_data['tags'] = list(group_data['tags'])
+    group_data['tags'] = list(group_data['tags']).sort()
 
     return date, group_data, media_files
 

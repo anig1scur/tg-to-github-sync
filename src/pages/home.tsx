@@ -6,10 +6,10 @@ interface Message {
   id: string;
   text: string;
   photos: string[];
-  tags: string[];
+  tags?: string[];
   quoted_message: Message | null;
   created_at: string;
-  date?: string;
+  date: string;
 }
 
 const AUTHOR = "Eunice";
@@ -54,20 +54,27 @@ const MessageList: React.FC = () => {
 
   const getItemSize = useCallback((index: number) => {
     const message = messages[index];
+    const {
+      text,
+      photos,
+      tags,
+      quoted_message,
+    } = message;
     let height = 150;
-    height += Math.ceil(message.text.length / 50) * 20;
-    height += message.photos.length * 200;
-    if (message.tags.length > 0) {
+    height += Math.ceil(text.length / 50) * 20;
+    height += photos.length * 200;
+    if (tags && tags.length > 0) {
       height += 30;
     }
-    if (message.quoted_message) {
-      height += Math.ceil(message.quoted_message.text.length / 50) * 20;
+    if (quoted_message) {
+      height += Math.ceil(quoted_message.text.length / 50) * 20;
     }
     return height;
   }, [messages]);
 
   const MessageItem: React.FC<ListChildComponentProps> = ({ index, style }) => {
     const message = messages[index];
+    const { photos, created_at, text, date, tags, quoted_message } = message;
     return (
       <div style={ style } className="overflow-x-hidden whitespace-pre-line p-4 border-b border-gray-200 hover:bg-gray-50">
         <div className="flex items-start">
@@ -78,19 +85,19 @@ const MessageList: React.FC = () => {
           />
           <div className="flex-1">
             <p className="font-semibold text-gray-900">{ AUTHOR }</p>
-            <p className="text-sm text-gray-500">{ new Date(message.created_at).toLocaleString() }</p>
-            <p className="mt-2 text-gray-700">{ message.text }</p>
-            { message.photos.map((photo, index) => (
+            <p className="text-sm text-gray-500">{ new Date(created_at).toLocaleString() }</p>
+            <p className="mt-2 text-gray-700">{ text }</p>
+            { photos.map((photo, index) => (
               <img
                 key={ index }
-                src={ `./assets/channel/2024-07/${ photo }` }
+                src={ `./assets/channel/2024-07/${ date }/${ photo }` }
                 alt={ `Photo ${ index + 1 }` }
                 className="mt-2 w-full h-48 object-cover rounded-lg shadow"
               />
             )) }
-            { message.tags.length > 0 && (
+            { tags && tags.length > 0 && (
               <div className="mt-2">
-                { message.tags.map((tag, index) => (
+                { tags.map((tag, index) => (
                   <span
                     key={ index }
                     className="px-2 py-1 mr-2 text-sm text-white bg-blue-500 rounded-full"
@@ -100,9 +107,9 @@ const MessageList: React.FC = () => {
                 )) }
               </div>
             ) }
-            { message.quoted_message && (
+            { quoted_message && (
               <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                <p className="mt-2 text-gray-700">{ message.quoted_message.text }</p>
+                <p className="mt-2 text-gray-700">{ quoted_message.text }</p>
               </div>
             ) }
           </div>
