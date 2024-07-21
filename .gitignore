@@ -1,3 +1,4 @@
 node_modules
 public/assets/channel
 dist
+.DS_Store
