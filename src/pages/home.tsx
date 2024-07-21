@@ -64,7 +64,7 @@ const MessageList: React.FC = () => {
     const { photos, created_at, text, date, tags, quoted_message } = message;
 
     return (
-      <div className="whitespace-pre-line pb-4 border-b mt-3 mx-3 border-card-bg border-opacity-30 hover:bg-gray-50" id={ message.id }>
+      <div className="whitespace-pre-line pb-4 border-b mt-3 mx-3 border-card-bg border-opacity-30" id={ message.id }>
         <div className="flex overflow-x-hidden">
           <img
             src={ `./assets/avatars/${ AVATARS[index % AVATARS.length] }` }
@@ -73,8 +73,17 @@ const MessageList: React.FC = () => {
           />
           <div className="flex flex-col flex-grow-0 max-w-[85%]">
             <p className="font-semibold text-lg text-gray-900">{ AUTHOR }</p>
-            <p className="text-xs text-zinc-600">{ new Date(created_at).toUTCString().slice(0, -4) }</p>
-            <LinkItUrl><p className="mt-2 text-gray-700 w-full break-all">{ text }</p></LinkItUrl>
+            <p className="text-xs text-zinc-600"> { (date || '').slice(6,) + " " + new Date(created_at).toLocaleTimeString() }</p>
+            <LinkItUrl><p className="mt-2 text-gray-900 w-full break-all">
+              {
+                text.split('\n').map((line, index) => (
+                  line && <span key={ index }>
+                    { line }
+                    { index !== text.split('\n').length - 1 && <div className="h-3" /> }
+                  </span>
+                ))
+              }
+            </p></LinkItUrl>
             <MediaContainer
               className="mt-2"
               images={ photos.map(photo => `./assets/channel/${ curMonth }/${ date }/${ photo.path }`) }

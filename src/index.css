@@ -11,6 +11,7 @@
 
 body {
   height: 100dvh;
+  @apply bg-bg;
 }
 
 #root {

@@ -26,3 +26,4 @@ dist-ssr
 
 .DS_Store
 public/assets/channel
+.vite
