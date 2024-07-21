@@ -1,1 +1,1 @@
-[{"id":51,"created_at":"2024-07-22 03:17:15","date":"2024-07-22","text":"这周末做的这个小新东西差不多完成基础功能了。接下来可以优化 ui 展示，提取更多 message 信息，可以按 tags 分类。可以支持搜索和按月按天查看。","photos":[{"path":"51_20240721191715.jpg","width":487,"height":800}],"tags":null,"quoted_message":null}]
+[{"id":51,"created_at":"2024-07-22 03:17:15","date":"2024-07-22","text":"这周末做的这个小新东西差不多完成基础功能了。接下来可以优化 ui 展示，提取更多 message 信息，可以按 tags 分类。可以支持搜索和按月按天查看。","photos":[{"path":"51_20240721191715.jpg","width":926,"height":1280}],"tags":null,"quoted_message":null}]
