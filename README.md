@@ -13,7 +13,6 @@ This repository automatically syncs content from a specified Telegram channel to
    - `TELEGRAM_API_HASH`
    - `TELEGRAM_SESSION_STRING`
    - `TELEGRAM_CHANNEL_USERNAME`
-   - `MESSAGE_LIMIT` the first time you may need a big limit to backup all messages, then you can lower it down
 4. Customize the `main.py` file if needed.
 5. Enable GitHub Actions in your forked repository.
 

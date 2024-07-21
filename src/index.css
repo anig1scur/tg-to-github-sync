@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: 'wireone';
+    src: url(/fonts/WireOne-number.ttf) format('truetype');
+  }
+}
+
+body {
+  height: 100dvh;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
+}

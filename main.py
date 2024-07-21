@@ -41,7 +41,7 @@ def extract_tags(text):
     last_line = text.strip().split('\n')[-1]
     tags = re.findall(r'#(\w+)', last_line) or []
     if tags:
-        text = '\n'.join(text.strip().split('\n')[:-1])  # Remove the last line with tags
+        text = '\n'.join(text.strip().split('\n')[:-1])
     return text, tags
 
 
@@ -53,11 +53,9 @@ def custom_filename(message, file_path):
 async def get_messages_in_range(client, channel, start_date, end_date, limit=None):
     messages = []
 
-    # 确保 start_date 早于 end_date
     if start_date > end_date:
         start_date, end_date = end_date, start_date
 
-    # 从 end_date 开始向前获取消息
     async for message in client.iter_messages(channel, limit=limit, offset_date=start_date, reverse=True):
         if message.date < start_date:
             break
@@ -78,6 +76,7 @@ async def process_message_group(messages):
     group_data = {
         'id': first_message.id,
         'created_at': msg_time,
+        'date': date,
         'text': "",
         'photos': [],
         'tags': set(),
@@ -92,7 +91,6 @@ async def process_message_group(messages):
         if not text and not media:
             continue
 
-        # 处理标签
         text, tags = extract_tags(text)
         group_data['tags'].update(tags)
         group_data['text'] = '\n'.join([group_data['text'], text]).strip()
@@ -104,8 +102,8 @@ async def process_message_group(messages):
             path = await message.download_media(file=custom_filename(message, fn))
             if path:
                 media_filename = f"{message.id}_{os.path.basename(path)}"
-                media_files.append((f"{date}/media/{media_filename}", path))
-                group_data['photos'].append(f"media/{media_filename}")
+                media_files.append((f"{date}/{media_filename}", path))
+                group_data['photos'].append(f"{media_filename}")
 
         # 处理引用消息（只处理组中第一条消息的引用）
         if group_data['quoted_message'] is None and hasattr(message, 'reply_to') and message.reply_to:
@@ -216,7 +214,6 @@ async def main():
             monthly_content = json.dumps(combined_data, ensure_ascii=False, separators=(',', ':'))
             element_list.append(InputGitTreeElement(monthly_file_path, '100644', 'blob', monthly_content))
 
-            # 处理媒体文件
             for media_path, local_path in data["media"]:
                 with open(local_path, "rb") as file:
                     data = base64.b64encode(file.read())
