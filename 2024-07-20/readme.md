@@ -66,6 +66,10 @@ python 这是什么劣习 （使用与实际不一致） 见到不止一个了
 
 弄了一个 tg channel 到 github 同步的玩儿意: https://github.com/anig1scur/tg-to-github-sync 。但现在这个 ifttt ：https://ifttt.com/applets/Ed3eDvEU-if-new-post-in-channel-capricious_eunice-eunice-in-caprice-then-create-a-comment 后半部分还不工作，所以不能算是自动化。
 
+并且它有一个很大的 bug 是，按天来记，只拿最新的 5 条 message 有可能会把某天前天的 messages 冲没。我需要找到 update 的方式。
+
+另外我想改成 json 存储，而不是 md ，方便使用许多。
+
 ![Media](./media/41_41_20240720203915.jpg)
 
 
