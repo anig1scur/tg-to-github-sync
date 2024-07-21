@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { VariableSizeList as List, ListChildComponentProps } from 'react-window';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import React, { useState, useEffect, useRef } from 'react';
 import MediaContainer from "@/components/threadsStyleMediaContainer";
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { LinkItUrl } from 'react-linkify-it';
 
 interface Photo {
   path: string;
   width: number;
   height: number;
 }
-
 interface Message {
   id: string;
   text: string;
@@ -33,15 +32,16 @@ const AVATARS = [
   'shy.png',
 ];
 
+
 const MessageList: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const listRef = useRef<List>(null);
-  const lastTop = useRef<number>(0);
+
+  const [curMonth, setCurMonth] = useState<string>(new Date().toISOString().slice(0, 7));
 
   const fetchMessages = async (): Promise<void> => {
     try {
-      const response = await fetch(`./assets/channel/2024-07/data.json`);
+      const response = await fetch(`./assets/channel/${ curMonth }/data.json`);
       const newMessages: Message[] = await response.json();
       const newMessages_ = newMessages.filter((message) => message.text || message.photos.length);
 
@@ -60,50 +60,25 @@ const MessageList: React.FC = () => {
     fetchMessages();
   }, []);
 
-  useEffect(() => {
-    listRef.current?.resetAfterIndex(0);
-  }, [messages]);
-
-  const getItemSize = useCallback((index: number) => {
-    const message = messages[index];
-    const {
-      text,
-      photos,
-      tags,
-      quoted_message,
-    } = message;
-
-    let height = 150;
-
-    height += Math.ceil(text.length / 20) * 20;
-    height += photos.length ? (photos.length === 1 ? 250 : 220) : 0;
-    if (tags && tags.length > 0) {
-      height += 30;
-    }
-    if (quoted_message) {
-      height += Math.ceil(quoted_message.text.length / 50) * 20;
-    }
-    return height;
-  }, [messages]);
-
-  const MessageItem: React.FC<ListChildComponentProps> = ({ index, style }) => {
-    const message = messages[index];
+  const MessageItem: React.FC<{ message: Message, index: number }> = ({ message, index }) => {
     const { photos, created_at, text, date, tags, quoted_message } = message;
+
     return (
-      <div style={ style } className=" whitespace-pre-line px-3 py-5 border-b border-gray-200 hover:bg-gray-50">
+      <div className="whitespace-pre-line pb-4 border-b mt-3 mx-3 border-card-bg border-opacity-30 hover:bg-gray-50" id={ message.id }>
         <div className="flex overflow-x-hidden">
           <img
             src={ `./assets/avatars/${ AVATARS[index % AVATARS.length] }` }
             alt={ AUTHOR }
-            className="w-10 h-10 rounded-full mr-2 flex-shrink-0"
+            className="w-10 h-10 rounded-full mr-2 mt-1 scale-105 flex-shrink-0"
           />
-          <div className="flex flex-col flex-shrink-1 max-w-[88%] overflow-auto">
-            <p className="font-semibold text-gray-900">{ AUTHOR }</p>
-            <p className="text-sm text-gray-500">{ new Date(created_at).toLocaleString() }</p>
-            <p className="mt-2 text-gray-700 w-full break-all">{ text }</p>
+          <div className="flex flex-col flex-grow-0 max-w-[85%]">
+            <p className="font-semibold text-lg text-gray-900">{ AUTHOR }</p>
+            <p className="text-xs text-zinc-600">{ new Date(created_at).toUTCString().slice(0, -4) }</p>
+            <LinkItUrl><p className="mt-2 text-gray-700 w-full break-all">{ text }</p></LinkItUrl>
             <MediaContainer
               className="mt-2"
-              images={ photos.map(photo => `./assets/channel/2024-07/${ date }/${ photo.path }`) } />
+              images={ photos.map(photo => `./assets/channel/${ curMonth }/${ date }/${ photo.path }`) }
+            />
             { tags && tags.length > 0 && (
               <div className="mt-2">
                 { tags.map((tag, index) => (
@@ -117,8 +92,13 @@ const MessageList: React.FC = () => {
               </div>
             ) }
             { quoted_message && (
-              <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                <p className="mt-2 text-gray-700">{ quoted_message.text }</p>
+              <div className="mt-5 mx-2 p-2 bg-opacity-10 bg-gray-600 border-l-2 border-black" onClick={ (e) => {
+                const ele = document.getElementById(quoted_message.id);
+                if (ele) {
+                  ele.scrollIntoView({ behavior: 'smooth' });
+                }
+              } }>
+                <p className="text-gray-700">{ quoted_message.text }</p>
               </div>
             ) }
           </div>
@@ -128,7 +108,7 @@ const MessageList: React.FC = () => {
   };
 
   return (
-    <div className="h-screen bg-bg w-full max-w-lg mx-auto">
+    <div className="h-screen bg-bg overflow-auto w-full max-w-lg mx-auto">
       <InfiniteScroll
         dataLength={ messages.length }
         next={ fetchMessages }
@@ -136,15 +116,12 @@ const MessageList: React.FC = () => {
         loader={ <h4 className="text-center py-4">Loading...</h4> }
         endMessage={ <p className="text-center py-4">No more messages</p> }
       >
-        <List
-          ref={ listRef }
-          height={ window.innerHeight }
-          itemCount={ messages.length }
-          itemSize={ getItemSize }
-          width="100%"
-        >
-          { MessageItem }
-        </List>
+        <div className="flex font-wireone items-start px-5 pt-2 text-card-bg text-[50px]">
+          { curMonth }
+        </div>
+        { messages.map((message, index) => (
+          <MessageItem key={ `${ index }_${ message.id }` } message={ message } index={ index } />
+        )) }
       </InfiniteScroll>
     </div>
   );

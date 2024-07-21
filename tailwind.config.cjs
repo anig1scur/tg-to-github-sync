@@ -11,10 +11,10 @@ module.exports = {
         'xs': '480px',
         'xxs': '360px',
       },
-    },
-    colors: {
-      'bg': '#faf5f1',
-      'card-bg': '#997164',
+      colors: {
+        'bg': '#faf5f1',
+        'card-bg': '#997164',
+      },
     },
   },
   plugins: [],
