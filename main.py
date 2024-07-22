@@ -110,7 +110,6 @@ async def process_message_group(messages):
                     'height': height
                 })
 
-        # 处理引用消息（只处理组中第一条消息的引用）
         if group_data['quoted_message'] is None and hasattr(message, 'reply_to') and message.reply_to:
             try:
                 replied_msg = await message.get_reply_message()
@@ -125,7 +124,8 @@ async def process_message_group(messages):
             except Exception as e:
                 logging.error(f"Error fetching replied message for {message.id}: {e}")
 
-    group_data['tags'] = list(group_data['tags']).sort()
+    group_data['tags'] = sorted(list(group_data['tags']))
+    group_data['photos'] = list(reversed(group_data['photos']))
 
     return date, group_data, media_files
 
