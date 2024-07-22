@@ -18,6 +18,6 @@ body {
   height: 100%;
   overflow: hidden;
   a {
-    @apply border-b border-dashed border-gray-600;
+    @apply border-b border-dashed text-text border-text leading-7;
   }
 }

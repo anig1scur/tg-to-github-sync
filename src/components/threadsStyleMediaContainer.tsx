@@ -16,7 +16,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({ className, images }) =>
           <img
             src={ images[0] }
             alt="media"
-            className="object-contain max-h-[300px]"
+            className="object-contain max-h-[350px]"
           />
         </div>
       ) : (
