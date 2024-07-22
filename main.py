@@ -25,6 +25,8 @@ API_ID = os.getenv("TELEGRAM_API_ID")
 API_HASH = os.getenv("TELEGRAM_API_HASH")
 SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING")
 CHANNEL_USERNAME = os.getenv("TELEGRAM_CHANNEL_USERNAME")
+DAY_LIMIT = int(os.getenv("DAY_LIMIT") or 7)
+
 TIME_ZONE = "Asia/Shanghai"
 py_time_zone = pytz.timezone(TIME_ZONE)
 # initial Telegram & github client
@@ -185,7 +187,7 @@ async def main():
         channel = await client.get_entity(CHANNEL_USERNAME)
 
         now = datetime.now(py_time_zone)
-        start_date = (now - timedelta(days=3)).replace(
+        start_date = (now - timedelta(days=DAY_LIMIT)).replace(
             hour=0, minute=0, second=0, microsecond=0
         )
         end_date = now
