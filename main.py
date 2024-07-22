@@ -126,6 +126,19 @@ class TelegramProcessor:
         updates[month]["content"][date].append(group_data)
         updates[month]["media"].extend(media_files)
 
+    async def fetch_sender_info(self, from_id):
+        info = {}
+        if isinstance(from_id, PeerChannel):
+            info["from_type"] = "channel"
+            info["from_id"] = str(from_id.channel_id)
+        elif isinstance(from_id, PeerUser):
+            info["from_type"] = "user"
+            info["from_id"] = str(from_id.user_id)
+        elif isinstance(from_id, PeerChat):
+            info["from_type"] = "chat"
+            info["from_id"] = str(from_id.chat_id)
+        return info
+
     async def process_message_group(self, messages: List[Message]) -> Tuple[str, Dict[str, Any], List[Tuple[str, str]]]:
         first_message = messages[0]
         utc_date = first_message.date
@@ -157,23 +170,17 @@ class TelegramProcessor:
             group_data["text"] = "\n".join([group_data["text"], text]).strip()
 
             if message.forward:
+                forward = message.forward
                 forward_info = {
-                    "from_id": str(message.forward.from_id) if message.forward.from_id else None,
-                    "from_name": message.forward.from_name,
-                    "channel_post": message.forward.channel_post,
-                    "created_at": message.forward.date.strftime("%Y-%m-%d %H:%M:%S") if message.forward.date else None,
+                    "from_id": str(forward.from_id) if forward.from_id else None,
+                    "from_name": forward.from_name or getattr(forward, 'post_author', None) or getattr(forward, 'sender', None),
+                    "channel_post": forward.channel_post,
+                    "created_at": forward.date.strftime("%Y-%m-%d %H:%M:%S") if forward.date else None,
                 }
 
-                if message.forward.from_id:
-                    if isinstance(message.forward.from_id, PeerChannel):
-                        forward_info["from_type"] = "channel"
-                        forward_info["from_id"] = str(message.forward.from_id.channel_id)
-                    elif isinstance(message.forward.from_id, PeerUser):
-                        forward_info["from_type"] = "user"
-                        forward_info["from_id"] = str(message.forward.from_id.user_id)
-                    elif isinstance(message.forward.from_id, PeerChat):
-                        forward_info["from_type"] = "chat"
-                        forward_info["from_id"] = str(message.forward.from_id.chat_id)
+                if forward.from_id:
+                    info = await self.fetch_sender_info(forward.from_id)
+                    forward_info.update(info)
 
                 group_data["forwarded_info"] = forward_info
 
@@ -199,16 +206,22 @@ class TelegramProcessor:
                             tzinfo=pytz.utc
                         ).astimezone(self.py_time_zone)
                         replied_text = getattr(replied_msg, "message", "")
+                        from_id = str(replied_msg.sender_id) if replied_msg.sender_id else None
+
                         group_data["quoted_message"] = {
                             "id": replied_msg.id,
                             "text": (
-                                replied_text[:100] + "..." if replied_text
-                                and len(replied_text) > 100
+                                replied_text[:80] + "..." if replied_text
+                                and len(replied_text) > 80
                                 else (replied_text or "")
                             ),
-                            "sender": str(replied_msg.sender_id),
+                            "from_id": from_id,
                             "created_at": replied_local_date.strftime("%Y-%m-%d %H:%M:%S"),
                         }
+                        if from_id:
+                            info = await self.fetch_sender_info(from_id)
+                            group_data["quoted_message"].update(info)
+
                 except Exception as e:
                     logging.error(f"Error fetching replied message for {message.id}: {e}")
 
