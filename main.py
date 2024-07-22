@@ -56,7 +56,9 @@ class TelegramProcessor:
 
         if "\n" not in text:
             tags = re.findall(r"#(\w+)", text) or []
-            return text, tags
+            if tags:
+                return "", tags
+            return text, []
 
         last_line = text.strip().split("\n")[-1]
         tags = re.findall(r"#(\w+)", last_line) or []
