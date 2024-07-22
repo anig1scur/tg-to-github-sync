@@ -89,7 +89,7 @@ const MessageList: React.FC = () => {
               </div>
             ) }
             { quoted_message && (
-              <div className="cursor-pointer mt-5 mx-2 px-2 py-1 bg-opacity-10 bg-card-bg text-text border-l-2 border-x-card-bg" onClick={ (e) => {
+              <div className="cursor-pointer mt-3 mb-2 mx-2 px-2 py-1 bg-opacity-10 bg-card-bg text-text border-l-2 border-x-card-bg" onClick={ (e) => {
                 const ele = document.getElementById(quoted_message.id);
                 if (ele) {
                   ele.scrollIntoView({ behavior: 'smooth' });

@@ -14,6 +14,7 @@ from typing import List, Tuple, Dict, Any
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from telethon import TelegramClient
+from telethon.types import Message, Channel, PeerChannel, PeerChat, PeerUser
 from telethon.sessions import StringSession
 from github import Github, InputGitTreeElement, GithubException
 
@@ -64,12 +65,12 @@ class TelegramProcessor:
         return text, tags
 
     @staticmethod
-    def custom_filename(message: Any, file_path: str) -> str:
+    def custom_filename(message: Message, file_path: str) -> str:
         _, ext = os.path.splitext(file_path)
         date_str = message.date.strftime("%Y%m%d%H%M%S")
         return f"{message.id}_{date_str}{ext}"
 
-    async def get_messages_in_range(self, channel: Any, start_date: datetime, end_date: datetime, limit: int = None) -> List[Any]:
+    async def get_messages_in_range(self, channel: Channel, start_date: datetime, end_date: datetime, limit: int = None) -> List[Message]:
         messages = []
 
         if start_date > end_date:
@@ -96,7 +97,7 @@ class TelegramProcessor:
             messages = await self.get_messages_in_range(channel, start_date_utc, end_date_utc)
             return await self.process_message_groups(messages)
 
-    async def process_message_groups(self, messages: List[Any]) -> Dict[str, Dict[str, Any]]:
+    async def process_message_groups(self, messages: List[Message]) -> Dict[str, Dict[str, Any]]:
         updates = {}
         message_group = []
 
@@ -112,7 +113,7 @@ class TelegramProcessor:
 
         return updates
 
-    async def process_and_update(self, message_group: List[Any], updates: Dict[str, Dict[str, Any]]):
+    async def process_and_update(self, message_group: List[Message], updates: Dict[str, Dict[str, Any]]):
         date, group_data, media_files = await self.process_message_group(message_group)
         if not (group_data["text"] or group_data["photos"]):
             return
@@ -125,7 +126,7 @@ class TelegramProcessor:
         updates[month]["content"][date].append(group_data)
         updates[month]["media"].extend(media_files)
 
-    async def process_message_group(self, messages: List[Any]) -> Tuple[str, Dict[str, Any], List[Tuple[str, str]]]:
+    async def process_message_group(self, messages: List[Message]) -> Tuple[str, Dict[str, Any], List[Tuple[str, str]]]:
         first_message = messages[0]
         utc_date = first_message.date
         local_date = utc_date.replace(tzinfo=pytz.utc).astimezone(self.py_time_zone)
@@ -141,9 +142,9 @@ class TelegramProcessor:
             "photos": [],
             "tags": set(),
             "quoted_message": None,
+            "forwarded_info": None,
         }
         media_files = []
-
         for message in messages:
             text = message.text or ""
             media = message.media
@@ -155,9 +156,28 @@ class TelegramProcessor:
             group_data["tags"].update(tags)
             group_data["text"] = "\n".join([group_data["text"], text]).strip()
 
-            if media:
-                if not message.file:
-                    continue
+            if message.forward:
+                forward_info = {
+                    "from_id": str(message.forward.from_id) if message.forward.from_id else None,
+                    "from_name": message.forward.from_name,
+                    "channel_post": message.forward.channel_post,
+                    "created_at": message.forward.date.strftime("%Y-%m-%d %H:%M:%S") if message.forward.date else None,
+                }
+
+                if message.forward.from_id:
+                    if isinstance(message.forward.from_id, PeerChannel):
+                        forward_info["from_type"] = "channel"
+                        forward_info["from_id"] = str(message.forward.from_id.channel_id)
+                    elif isinstance(message.forward.from_id, PeerUser):
+                        forward_info["from_type"] = "user"
+                        forward_info["from_id"] = str(message.forward.from_id.user_id)
+                    elif isinstance(message.forward.from_id, PeerChat):
+                        forward_info["from_type"] = "chat"
+                        forward_info["from_id"] = str(message.forward.from_id.chat_id)
+
+                group_data["forwarded_info"] = forward_info
+
+            if media and message.file:
                 fn = str(message.file.name)
                 path = await message.download_media(file=self.custom_filename(message, fn))
                 if path:
@@ -187,7 +207,7 @@ class TelegramProcessor:
                                 else (replied_text or "")
                             ),
                             "sender": str(replied_msg.sender_id),
-                            "date": replied_local_date.strftime("%Y-%m-%d %H:%M:%S"),
+                            "created_at": replied_local_date.strftime("%Y-%m-%d %H:%M:%S"),
                         }
                 except Exception as e:
                     logging.error(f"Error fetching replied message for {message.id}: {e}")
@@ -217,13 +237,14 @@ class GithubUpdater:
         self.create_commit(element_list, branch_sha, branch_ref)
 
     def ensure_branch_exists(self):
+        branch = self.config.GITHUB_BRANCH
         try:
-            self.repo.get_branch(self.config.GITHUB_BRANCH)
+            self.repo.get_branch(branch)
         except GithubException:
-            logging.info(f"Branch {self.config.GITHUB_BRANCH} does not exist. Creating it...")
+            logging.info(f"Branch {branch} does not exist. Creating it...")
             sb = self.repo.get_branch(self.repo.default_branch)
-            self.repo.create_git_ref(ref=f"refs/heads/{self.config.GITHUB_BRANCH}", sha=sb.commit.sha)
-            logging.info(f"Branch {self.config.GITHUB_BRANCH} created successfully.")
+            self.repo.create_git_ref(ref=f"refs/heads/{branch}", sha=sb.commit.sha)
+            logging.info(f"Branch {branch} created successfully.")
 
     def prepare_updates(self, updates: Dict[str, Dict[str, Any]]) -> List[InputGitTreeElement]:
         element_list = []
