@@ -1,22 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import MediaContainer from "@/components/threadsStyleMediaContainer";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { LinkItUrl } from 'react-linkify-it';
-
-interface Photo {
-  path: string;
-  width: number;
-  height: number;
-}
-interface Message {
-  id: string;
-  text: string;
-  photos: Photo[];
-  tags?: string[];
-  quoted_message: Message | null;
-  created_at: string;
-  date: string;
-}
+import { Message } from '@/type';
 
 const AUTHOR = import.meta.env.VITE_AUTHOR;
 const BASE = import.meta.env.VITE_BASE;
@@ -74,7 +60,7 @@ const MessageList: React.FC = () => {
           />
           <div className="flex flex-col flex-grow-0 max-w-[85%]">
             <p className="font-semibold text-lg text-gray-800">{ AUTHOR }</p>
-            <p className="text-xs text-zinc-600"> { (date || '').slice(6,) + " " + created_at.slice(10, ) }</p>
+            <p className="text-xs text-zinc-600"> { (date || '').slice(6,) + " " + created_at.slice(10,) }</p>
             <LinkItUrl><div className="mt-2 text-gray-900 w-full break-all">
               {
                 text.split('\n').map((line, index) => (
@@ -87,7 +73,8 @@ const MessageList: React.FC = () => {
             </div></LinkItUrl>
             <MediaContainer
               className="mt-2"
-              images={ photos.map(photo => `${ BASE }/assets/channel/${ curMonth }/${ date }/${ photo.path }`) }
+              prefix={ `${ BASE }/assets/channel/${ curMonth }/${ date }` }
+              photos={ photos }
             />
             { tags && tags.length > 0 && (
               <div className="mt-2">
@@ -102,7 +89,7 @@ const MessageList: React.FC = () => {
               </div>
             ) }
             { quoted_message && (
-              <div className="mt-5 mx-2 px-2 py-1 bg-opacity-10 bg-card-bg text-text border-l-2 border-x-card-bg" onClick={ (e) => {
+              <div className="cursor-pointer mt-5 mx-2 px-2 py-1 bg-opacity-10 bg-card-bg text-text border-l-2 border-x-card-bg" onClick={ (e) => {
                 const ele = document.getElementById(quoted_message.id);
                 if (ele) {
                   ele.scrollIntoView({ behavior: 'smooth' });

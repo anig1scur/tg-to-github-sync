@@ -111,7 +111,7 @@ async def process_message_group(messages):
                 width, height = imagesize.get(path)
                 media_files.append((f"{date}/{path}", path))
                 group_data["photos"].append(
-                    {"path": path, "width": width, "height": height}
+                    {"path": path, "width": width, "height": height, "id": message.id}
                 )
 
         if (

@@ -1,30 +1,33 @@
 import React from 'react';
+import { Photo } from '@/type';
 
 interface MediaContainerProps {
-  images: string[];
+  prefix: string;
+  photos: Photo[];
   className?: string;
 }
 
-const MediaContainer: React.FC<MediaContainerProps> = ({ className, images }) => {
-  if (!images || !images.length) {
+const MediaContainer: React.FC<MediaContainerProps> = ({ prefix, className, photos }) => {
+  if (!photos || !photos.length) {
     return null;
   }
+
   return (
     <div className={ `w-full ${ className }` }>
-      { images.length === 1 ? (
+      { photos.length === 1 ? (
         <div className="w-full">
           <img
-            src={ images[0] }
+            src={ `${ prefix }/${ photos[0].path }` }
             alt="media"
             className="object-contain max-h-[350px]"
           />
         </div>
       ) : (
         <div className="w-full overflow-x-auto flex space-x-2 h-[250px]">
-          { images.map((src, index) => (
-            <div key={ index } className="flex-shrink-0 flex-grow-0 w-[180px] h-full overflow-y-hidden">
+          { photos.map((photo, index) => (
+            <div key={ index } id={ photo.id } className="flex-shrink-0 flex-grow-0 w-[180px] h-full overflow-y-hidden">
               <img
-                src={ src }
+                src={ `${ prefix }/${ photo.path }` }
                 alt={ `media-${ index }` }
                 className="object-cover h-full w-full"
               />
