@@ -13,10 +13,13 @@ module.exports = {
       },
       colors: {
         'bg': '#faf5f1',
+        'bg-secondary': '#eadbce',
         'card-bg': '#997164',
         'text': '#483c38'
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar'),
+  ],
 };

@@ -14,10 +14,6 @@ body {
   @apply bg-bg;
 }
 
-#root {
-  height: 100%;
-  overflow: hidden;
-  a {
-    @apply border-b border-dashed text-text border-text leading-7;
-  }
+a {
+  @apply border-b border-dashed text-text border-text leading-7;
 }

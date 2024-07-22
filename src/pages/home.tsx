@@ -118,7 +118,7 @@ const MessageList: React.FC = () => {
   };
 
   return (
-    <div className="h-screen bg-bg overflow-auto w-full max-w-lg mx-auto">
+    <div className="h-screen bg-bg overflow-auto w-full max-w-lg mx-auto scrollbar scrollbar-thumb-card-bg scrollbar-track-bg-secondary ">
       <InfiniteScroll
         dataLength={ messages.length }
         next={ fetchMessages }
