@@ -26,6 +26,6 @@ jobs:
         TELEGRAM_SESSION_STRING: ${{ secrets.TELEGRAM_SESSION_STRING }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPO: ${{ github.repository }}
-        DAY_LIMIT: ${{vars.DAY_LIMIT  }}
+        DAY_LIMIT: ${{ vars.DAY_LIMIT  }}
         TELEGRAM_CHANNEL_USERNAME: ${{ vars.TELEGRAM_CHANNEL_USERNAME }}
       run: python main.py

@@ -51,7 +51,7 @@ const MessageList: React.FC = () => {
     const date = date_ || created_at.slice(0, 10);
 
     return (
-      <div className="whitespace-pre-line pb-3 border-b mt-2 mb-4 mx-3 border-card-bg border-opacity-30" id={ message.id }>
+      <div className="whitespace-pre-line pb-3 border-b mt-2 mb-4 mx-3 border-card-bg border-opacity-30 scroll-m-4" id={ message.id }>
         <div className="flex overflow-hidden">
           <img
             src={ `./assets/avatars/${ AVATARS[index % AVATARS.length] }` }
@@ -92,7 +92,10 @@ const MessageList: React.FC = () => {
               <div className="cursor-pointer mt-3 mb-2 mx-2 px-2 py-1 bg-opacity-10 bg-card-bg text-text border-l-2 border-x-card-bg" onClick={ (e) => {
                 const ele = document.getElementById(quoted_message.id);
                 if (ele) {
-                  ele.scrollIntoView({ behavior: 'smooth' });
+                  ele.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
                 }
               } }>
                 <p>{ quoted_message.text }</p>
