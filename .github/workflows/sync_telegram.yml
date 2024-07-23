@@ -23,8 +23,9 @@ jobs:
       env:
         TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
         TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
-        TELEGRAM_CHANNEL_USERNAME: ${{ secrets.TELEGRAM_CHANNEL_USERNAME }}
         TELEGRAM_SESSION_STRING: ${{ secrets.TELEGRAM_SESSION_STRING }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPO: ${{ github.repository }}
+        DAY_LIMIT: ${{vars.DAY_LIMIT  }}
+        TELEGRAM_CHANNEL_USERNAME: ${{ vars.TELEGRAM_CHANNEL_USERNAME }}
       run: python main.py
