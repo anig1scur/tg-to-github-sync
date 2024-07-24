@@ -299,6 +299,8 @@ class GithubUpdater:
             logging.info("No new updates found. Skipping commit.")
             return
 
+        logging.info(f"Updating repository with: {element_list}")
+
         self.create_commit(element_list, branch_sha, branch_ref)
 
     def ensure_branch_exists(self):
