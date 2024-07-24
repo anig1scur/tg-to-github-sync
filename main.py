@@ -8,8 +8,8 @@ import json
 import pytz
 import base64
 import logging
-import imagesize
 import asyncio
+import imagesize
 from typing import List, Tuple, Dict, Any
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -300,7 +300,6 @@ class GithubUpdater:
             return
 
         logging.info(f"Updating repository with: {element_list}")
-
         self.create_commit(element_list, branch_sha, branch_ref)
 
     def ensure_branch_exists(self):
@@ -331,12 +330,11 @@ class GithubUpdater:
             content_json = json.dumps(
                 content, ensure_ascii=False, separators=(",", ":")
             )
-            if self.content_changed(file_path, content_json):
+            blob = self.repo.create_git_blob(content_json, "utf-8")
+            if self.content_changed(file_path, blob.sha):
                 element_list.append(
-                    InputGitTreeElement(file_path, "100644", "blob", content_json)
+                    InputGitTreeElement(file_path, "100644", "blob", sha=blob.sha)
                 )
-            else:
-                logging.info(f"No changes in {file_path}. Skipping.")
 
     def update_monthly_file(
         self, month: str, data: Dict[str, Any], element_list: List[InputGitTreeElement]
@@ -357,24 +355,24 @@ class GithubUpdater:
         monthly_content = json.dumps(
             combined_data, ensure_ascii=False, separators=(",", ":")
         )
-        if self.content_changed(monthly_file_path, monthly_content):
+        blob = self.repo.create_git_blob(monthly_content, "utf-8")
+        if self.content_changed(monthly_file_path, blob.sha):
             element_list.append(
-                InputGitTreeElement(
-                    monthly_file_path, "100644", "blob", monthly_content
-                )
+                InputGitTreeElement(monthly_file_path, "100644", "blob", sha=blob.sha)
             )
-        else:
-            logging.info(f"No changes in {monthly_file_path}. Skipping.")
 
     def update_media_files(
         self, month: str, data: Dict[str, Any], element_list: List[InputGitTreeElement]
     ):
+
         for media_path, local_path in data["media"]:
             with open(local_path, "rb") as file:
-                data = base64.b64encode(file.read())
-                blob = self.repo.create_git_blob(data.decode("utf-8"), "base64")
+                file_content = file.read()
+                blob = self.repo.create_git_blob(
+                    base64.b64encode(file_content).decode("utf-8"), "base64"
+                )
                 github_media_path = f"{self.config.GITHUB_FOLDER}{month}/{media_path}"
-                if self.content_changed(github_media_path, data.decode("utf-8")):
+                if self.content_changed(github_media_path, blob.sha):
                     element_list.append(
                         InputGitTreeElement(
                             github_media_path, "100644", "blob", sha=blob.sha
@@ -389,21 +387,12 @@ class GithubUpdater:
         except GithubException:
             return None
 
-    def content_changed(self, file_path: str, new_content: str) -> bool:
+    def content_changed(self, file_path: str, new_content_sha: str) -> bool:
         try:
             old_content = self.repo.get_contents(
                 file_path, ref=self.config.GITHUB_BRANCH
             )
-
-            if isinstance(old_content.content, bytes):
-                return old_content.content != new_content.encode()
-            else:
-                try:
-                    old_decoded = old_content.decoded_content.decode("utf-8")
-                except UnicodeDecodeError:
-                    return True
-
-                return old_decoded != new_content
+            return old_content.sha != new_content_sha
         except Exception:
             return True
 
