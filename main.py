@@ -203,9 +203,8 @@ class TelegramProcessor:
                 forward = message.forward
                 forward_info = {
                     "from_id": str(forward.from_id) if forward.from_id else None,
-                    "from_name": forward.from_name
-                    or getattr(forward, "post_author", None)
-                    or getattr(forward, "sender", None),
+                    "from_name": forward.from_name,
+                    "post_author": forward.post_author,
                     "channel_post": forward.channel_post,
                     "created_at": (
                         forward.date.strftime("%Y-%m-%d %H:%M:%S")
