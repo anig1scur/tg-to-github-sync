@@ -17,6 +17,10 @@ const AVATARS = [
   'none.png',
   'sad.png',
   'shy.png',
+  'qiangdier.png',
+  'reading.png',
+  'sleep.png',
+  'ye.png',
 ];
 
 const MessageList: React.FC = () => {
