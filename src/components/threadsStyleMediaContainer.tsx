@@ -69,7 +69,7 @@ const MediaContainer: React.FC<MediaContainerProps> = ({ prefix, className, phot
           />
         </div>
       ) : (
-        <div className="w-full overflow-x-auto flex space-x-2 h-[250px]">
+        <div className="w-full overflow-x-auto flex space-x-2 h-[250px] scrollbar scrollbar-thumb-card-bg scrollbar-track-bg-secondary">
           { photos.map((photo, index) => (
             <div
               key={ index }
