@@ -337,7 +337,7 @@ class GithubUpdater:
 
     def remove_day_after(self, data: List[Dict[str, Any]], date: str):
         for key in data:
-            if key["date"] > date:
+            if key["date"] >= date:
                 data.remove(key)
 
     def update_monthly_file(
@@ -350,7 +350,7 @@ class GithubUpdater:
         for date in sorted(data["content"].keys()):
             new_monthly_data.extend(data["content"][date])
 
-        last_day = sorted(new_monthly_data, key=lambda x: x["id"])[-1]["date"]
+        last_day = sorted(new_monthly_data, key=lambda x: x["id"])[0]["date"]
         self.remove_day_after(existing_monthly_data, last_day)
 
         combined_data = existing_monthly_data + new_monthly_data
