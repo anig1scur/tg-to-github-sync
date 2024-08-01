@@ -7,6 +7,8 @@ import { Message } from '@/type';
 const AUTHOR = import.meta.env.VITE_AUTHOR;
 const BASE = import.meta.env.VITE_BASE;
 
+const months = ['2024-07', '2024-08']
+
 const AVATARS = [
   'angry.png',
   'awkward.png',
@@ -26,8 +28,8 @@ const AVATARS = [
 const MessageList: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
-
   const [curMonth, setCurMonth] = useState<string>(new Date().toISOString().slice(0, 7));
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
   const fetchMessages = async (): Promise<void> => {
     try {
@@ -47,8 +49,16 @@ const MessageList: React.FC = () => {
   };
 
   useEffect(() => {
+    setMessages([]);
+    setHasMore(true);
     fetchMessages();
-  }, []);
+  }, [curMonth]);
+
+  const handleMonthChange = (month: string) => {
+    setCurMonth(month);
+    setIsDropdownOpen(false);
+  };
+
 
   const MessageItem: React.FC<{ message: Message, index: number }> = ({ message, index }) => {
     const { photos, created_at, text, date: date_, tags, quoted_message } = message;
@@ -110,19 +120,51 @@ const MessageList: React.FC = () => {
       </div>
     );
   };
-
   return (
-    <div className="h-screen bg-bg overflow-auto w-full max-w-lg mx-auto scrollbar scrollbar-thumb-card-bg scrollbar-track-bg-secondary ">
+    <div className="h-screen bg-bg overflow-auto w-full max-w-lg mx-auto scrollbar scrollbar-thumb-card-bg scrollbar-track-bg-secondary">
+      <div className="flex font-wireone items-start px-5 pt-2 text-card-bg text-[60px] relative">
+        <div
+          className="flex items-center cursor-pointer"
+          onClick={ () => setIsDropdownOpen(!isDropdownOpen) }
+        >
+          { curMonth }
+          <svg
+            className="w-5 h-5 ml-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={ 2 }
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
+        { isDropdownOpen && (
+          <div className="absolute top-full left-3 mt-1 bg-white border-[2.5px] border-card-bg rounded shadow-lg z-10">
+            { months.map((month) => (
+              <div
+                key={ month }
+                className={ `px-4 py-2 cursor-pointer hover:bg-bg ${ month === curMonth ? 'bg-bg font-bold' : ''
+                  }` }
+                onClick={ () => handleMonthChange(month) }
+              >
+                { month }
+              </div>
+            )) }
+          </div>
+        ) }
+      </div>
       <InfiniteScroll
         dataLength={ messages.length }
         next={ fetchMessages }
         hasMore={ hasMore }
-        loader={ <h4 className="text-center py-4">Loading...</h4> }
+        loader={ <h4 className="text-center py-4 mt-4 text-card-bg">加载中...</h4> }
         endMessage={ <p className="text-center py-4">No more messages</p> }
       >
-        <div className="flex font-wireone items-start px-5 pt-2 text-card-bg text-[60px]">
-          { curMonth }
-        </div>
         { messages.map((message, index) => (
           <MessageItem key={ `${ index }_${ message.id }` } message={ message } index={ index } />
         )) }
