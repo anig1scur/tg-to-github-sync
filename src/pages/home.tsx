@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MediaContainer from "@/components/threadsStyleMediaContainer";
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { LinkItUrl } from 'react-linkify-it';
 import { Message } from '@/type';
 
 const AUTHOR = import.meta.env.VITE_AUTHOR;
@@ -24,6 +23,23 @@ const AVATARS = [
   'sleep.png',
   'ye.png',
 ];
+
+const replaceMarkdown = (text: string): string => {
+  // __ __  -> <em> </em>
+  const underline = /__(.*?)__/g;
+  text = text.replace(underline, '<em>$1</em>');
+  // ** **  -> <strong> </strong>
+  const bold = /\*\*(.*?)\*\*/g;
+  text = text.replace(bold, '<strong>$1</strong>');
+  // ~~ ~~  -> <del> </del>
+  const del = /~~(.*?)~~/g;
+  text = text.replace(del, '<del>$1</del>');
+
+  const link = /https?:\/\/([^\s]+)/g;
+  text = text.replace(link, '<a href="$&" target="_blank">$&</a>');
+
+  return text;
+}
 
 const MessageList: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -75,16 +91,16 @@ const MessageList: React.FC = () => {
           <div className="flex flex-col flex-grow-0 max-w-[85%]">
             <p className="font-semibold text-lg text-gray-800">{ AUTHOR }</p>
             <p className="text-xs text-zinc-600"> { (date || '').slice(6,) + " " + created_at.slice(10,) }</p>
-            <LinkItUrl><div className="mt-2 text-gray-900 w-full break-all">
+            <div className="mt-2 text-gray-900 w-full break-all">
               {
                 text.split('\n').map((line, index) => (
                   line && <span key={ index }>
-                    { line }
-                    { index !== text.split('\n').length - 1 && <div className="h-3" /> }
+                    <div dangerouslySetInnerHTML={ { __html: replaceMarkdown(line) } } />
+                    { index !== text.split('\n').length - 1 && <div className="mt-2" /> }
                   </span>
                 ))
               }
-            </div></LinkItUrl>
+            </div>
             <MediaContainer
               className="mt-2"
               prefix={ `${ BASE }/assets/channel/${ curMonth }/${ date }` }
