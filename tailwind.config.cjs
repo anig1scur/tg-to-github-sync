@@ -5,6 +5,7 @@ module.exports = {
   theme: {
     fontFamily: {
       wireone: ['wireone', 'serif'],
+      mono: ['monospace'],
     },
     extend: {
       screens: {
