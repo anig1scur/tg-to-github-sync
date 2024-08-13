@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: process.env.GITHUB_ACTIONS === '1' ? '/tg-to-github-sync/' : '/',
+  // base: process.env.GITHUB_ACTIONS === '1' ? '/tg-to-github-sync/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
