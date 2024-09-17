@@ -6,7 +6,7 @@ import { Message } from '@/type';
 const AUTHOR = import.meta.env.VITE_AUTHOR;
 const BASE = import.meta.env.VITE_BASE;
 
-const months = ['2024-08', '2024-07']
+const months = ['2024-09', '2024-08', '2024-07']
 
 const AVATARS = [
   'angry.png',
