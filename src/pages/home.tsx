@@ -172,7 +172,7 @@ const MessageList: React.FC = () => {
   };
   return (
     <div className="h-dvh bg-bg overflow-auto w-full max-w-lg mx-auto scrollbar scrollbar-thumb-card-bg scrollbar-track-bg-secondary">
-      <div className="flex font-wireone items-center w-full max-w-lg  mb-2 px-5 py-2 text-card-bg bg-bg fixed top-0 z-10">
+      <div className="flex font-wireone items-center w-full max-w-lg shadow-xs mb-2 px-5 py-2 bg-card-bg text-bg fixed top-0 z-10">
         <div className="flex-0">
           <div
             className="flex items-center cursor-pointer text-5xl"
@@ -195,11 +195,11 @@ const MessageList: React.FC = () => {
             </svg>
           </div>
           { isDropdownOpen && (
-            <div className="absolute top-full text-4xl left-4 bg-white border-[2.5px] border-card-bg rounded shadow-lg z-10">
+            <div className="absolute top-full text-4xl left-4 border-[2.5px] bg-card-bg rounded shadow-lg z-10">
               { months.map((month) => (
                 <div
                   key={ month }
-                  className={ `px-4 py-2 cursor-pointer hover:bg-bg ${ month === curMonth ? 'bg-bg font-bold' : ''
+                  className={ `px-4 py-2 cursor-pointer hover:bg-bg hover:text-card-bg ${ month === curMonth ? 'bg-bg font-bold text-card-bg' : ''
                     }` }
                   onClick={ () => handleMonthChange(month) }
                 >
@@ -209,13 +209,13 @@ const MessageList: React.FC = () => {
             </div>
           ) }
         </div>
-        <div className="flex-1 ml-10">
+        <div className="flex-1 ml-5">
           <input
             type="text"
             placeholder="Search..."
             value={ searchTerm }
             onChange={ handleSearch }
-            className="w-full font-mono px-3 py-2 text-base placeholder-bg-secondary text-card-bg border-[2.5px] rounded-lg focus:outline-none border-card-bg focus:border-dashed"
+            className="w-full font-mono px-3 py-2 shadow-sm text-base placeholder-bg-secondary text-card-bg border-[2.5px] rounded-lg focus:outline-none border-card-bg focus:border-dashed"
           />
         </div>
       </div>
