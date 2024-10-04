@@ -6,7 +6,20 @@ import { Message } from '@/type';
 const AUTHOR = import.meta.env.VITE_AUTHOR;
 const BASE = import.meta.env.VITE_BASE;
 
-const months = ['2024-09', '2024-08', '2024-07']
+const generateMonths = () => {
+  const months = [];
+  const currentDate = new Date();
+  const endDate = new Date(2024, 6);
+
+  while (currentDate >= endDate) {
+    months.push(currentDate.toISOString().slice(0, 7));
+    currentDate.setMonth(currentDate.getMonth() - 1);
+  }
+
+  return months;
+};
+
+const months = generateMonths();
 
 const AVATARS = [
   'angry.png',
@@ -123,7 +136,7 @@ const MessageList: React.FC = () => {
           />
           <div className="flex flex-col flex-grow-0 max-w-[85%]">
             <p className="font-semibold text-lg text-gray-800">{ AUTHOR }</p>
-            <p className="text-xs text-zinc-600"> { (date || '').slice(6,) + " " + created_at.slice(10,) }</p>
+            <p className="text-xs text-zinc-600"> { created_at.slice(5,) }</p>
             <div className="mt-2 text-gray-900 w-full break-all">
               {
                 text.split('\n').map((line, index) => (
@@ -172,7 +185,7 @@ const MessageList: React.FC = () => {
   };
   return (
     <div className="h-dvh bg-bg overflow-auto w-full max-w-lg mx-auto scrollbar scrollbar-thumb-card-bg scrollbar-track-bg-secondary">
-      <div className="flex font-wireone items-center w-full max-w-lg shadow-xs mb-2 px-5 py-2 bg-card-bg text-bg fixed top-0 z-10">
+      <div className="flex font-wireone items-center w-full max-w-lg shadow-md mb-2 px-5 py-2 bg-card-bg text-bg fixed top-0 z-10">
         <div className="flex-0">
           <div
             className="flex items-center cursor-pointer text-5xl"
@@ -215,12 +228,12 @@ const MessageList: React.FC = () => {
             placeholder="Search..."
             value={ searchTerm }
             onChange={ handleSearch }
-            className="w-full font-mono px-3 py-2 shadow-sm text-base placeholder-bg-secondary text-card-bg border-[2.5px] rounded-lg focus:outline-none border-card-bg focus:border-dashed"
+            className="w-full font-mono px-3 py-2 shadow-md text-base placeholder-bg-secondary text-card-bg border-[2.5px] rounded-lg focus:outline-none border-card-bg border-opacity-50 focus:border-dashed"
           />
         </div>
       </div>
       <InfiniteScroll
-        className='mt-20'
+        className='mt-16'
         dataLength={ filteredMessages.length }
         next={ loadNextMonth }
         hasMore={ hasMore }
