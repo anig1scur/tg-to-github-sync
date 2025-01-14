@@ -12,11 +12,17 @@ module.exports = {
         'xs': '480px',
         'xxs': '360px',
       },
+      // colors: {
+      //   'bg': '#faf5f1',
+      //   'bg-secondary': '#eadbce',
+      //   'card-bg': '#997164',
+      //   'text': '#483c38'
+      // },
       colors: {
-        'bg': '#faf5f1',
-        'bg-secondary': '#eadbce',
-        'card-bg': '#997164',
-        'text': '#483c38'
+        'bg': '#f8f8f8',
+        'bg-secondary': '#e0e0e0',
+        'card-bg': '#3a3a3a',
+        'text': '#2a2a2a'
       },
     },
   },

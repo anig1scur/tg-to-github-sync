@@ -9,7 +9,7 @@ const BASE = import.meta.env.VITE_BASE;
 const generateMonths = () => {
   const months = [];
   const currentDate = new Date();
-  const endDate = new Date(2024, 6);
+  const endDate = new Date(2024, 12);
 
   while (currentDate >= endDate) {
     months.push(currentDate.toISOString().slice(0, 7));
