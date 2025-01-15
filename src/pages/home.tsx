@@ -56,6 +56,7 @@ const replaceMarkdown = (text: string): string => {
 
 const MessageList: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [curMonth, setCurMonth] = useState<string>(new Date().toISOString().slice(0, 7));
@@ -127,7 +128,7 @@ const MessageList: React.FC = () => {
     const month = date.slice(0, 7);
 
     return (
-      <div className="whitespace-pre-line pb-3 border-b mt-2 mb-4 mx-3 border-card-bg border-opacity-30 scroll-m-4" id={ message.id }>
+      <div className="whitespace-pre-line pb-3 border-b mt-2 mb-4 mx-3 border-card-bg border-opacity-30 scroll-m-4 last:border-b-0" id={ message.id }>
         <div className="flex overflow-hidden">
           <img
             src={ `./assets/avatars/${ AVATARS[index % AVATARS.length] }` }
@@ -188,12 +189,18 @@ const MessageList: React.FC = () => {
       <div className="flex font-wireone items-center w-full max-w-lg shadow-md mb-2 px-5 py-2 bg-card-bg text-bg fixed top-0 z-10">
         <div className="flex-0">
           <div
-            className="flex items-center cursor-pointer text-5xl"
+            className={
+              `flex items-center cursor-pointer text-5xl transition-all
+               ${ isSearching ? 'text-2xl' : '' }
+              `}
             onClick={ () => setIsDropdownOpen(!isDropdownOpen) }
           >
             { curMonth }
             <svg
-              className="w-5 h-5 ml-2"
+              className={
+                `w-6 h-6 ml-2 transition-transform ${ isDropdownOpen ? 'transform rotate-180' : '' }
+                ${ isSearching ? 'w-3 h-3' : '' }
+                `}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -208,7 +215,7 @@ const MessageList: React.FC = () => {
             </svg>
           </div>
           { isDropdownOpen && (
-            <div className="absolute top-full text-4xl left-4 border-[2.5px] bg-card-bg rounded shadow-lg z-10">
+            <div className={ `absolute top-full text-4xl left-4 border-[2.5px] bg-card-bg rounded shadow-lg z-10` }>
               { months.map((month) => (
                 <div
                   key={ month }
@@ -227,6 +234,9 @@ const MessageList: React.FC = () => {
             type="text"
             placeholder="Search..."
             value={ searchTerm }
+            onFocus={ () => setIsSearching(true) }
+            onBlur={ () => setIsSearching(false) }
+            onInput={ handleSearch }
             onChange={ handleSearch }
             className="w-full font-mono px-3 py-2 shadow-md text-base placeholder-bg-secondary text-card-bg border-[2.5px] rounded-lg focus:outline-none border-card-bg border-opacity-50 focus:border-dashed"
           />
@@ -237,8 +247,8 @@ const MessageList: React.FC = () => {
         dataLength={ filteredMessages.length }
         next={ loadNextMonth }
         hasMore={ hasMore }
-        loader={ <h4 className="text-center py-4 mt-4 text-card-bg">加载中...</h4> }
-        endMessage={ <p className="text-center pb-4 text-card-bg">没有更多了...</p> }
+        loader={ <h4 className="text-center py-4 mt-4 text-card-bg">loading...</h4> }
+        endMessage={ <p className="text-center pb-4 text-card-bg"> No More </p> }
       >
         { filteredMessages.map((message, index) => (
           <MessageItem key={ `${ index }_${ message.id }` } message={ message } index={ index } />

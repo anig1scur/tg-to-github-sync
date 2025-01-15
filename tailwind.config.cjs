@@ -21,8 +21,8 @@ module.exports = {
       colors: {
         'bg': '#f8f8f8',
         'bg-secondary': '#e0e0e0',
-        'card-bg': '#3a3a3a',
-        'text': '#2a2a2a'
+        'card-bg': '#2a2a2a',
+        'text': '#1a1a1a'
       },
     },
   },
