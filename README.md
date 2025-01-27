@@ -7,7 +7,7 @@ This repository automatically syncs content from a specified Telegram channel to
 ### 1. Telegram to GitHub sync
 
 1. Fork this repository
-2. Create a Telegram login session to get the `SESSION_STRING` by [StringSessionBot](https://github.com/ShivangKakkar/StringSessionBot) or any other ways, and get `API_ID`D and `API_HASH` from https://my.telegram.org/auth?to=apps
+2. Get `API_ID` and `API_HASH` from https://my.telegram.org/auth?to=apps, and get a Telethon `SESSION_STRING` by [StringSession](https://github.com/AkkilMG/String-Session) or any other ways
 3. Set up GitHub Actions with the necessary Repository secrets:
    - `TELEGRAM_API_ID`
    - `TELEGRAM_API_HASH`
