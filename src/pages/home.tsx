@@ -128,7 +128,7 @@ const MessageList: React.FC = () => {
     const month = date.slice(0, 7);
 
     return (
-      <div className="whitespace-pre-line pb-3 border-b mt-2 mb-4 mx-3 border-card-bg border-opacity-30 scroll-m-4 last:border-b-0" id={ message.id }>
+      <div className="whitespace-pre-line bg-contain pb-3 border-b mt-2 mb-4 mx-3 border-card-bg border-opacity-30 scroll-m-4 last:border-b-0" id={ message.id }>
         <div className="flex overflow-hidden">
           <img
             src={ `./assets/avatars/${ AVATARS[index % AVATARS.length] }` }
@@ -185,7 +185,7 @@ const MessageList: React.FC = () => {
     );
   };
   return (
-    <div className="h-dvh bg-bg overflow-auto w-full max-w-lg mx-auto scrollbar scrollbar-thumb-card-bg scrollbar-track-bg-secondary">
+    <div className="h-dvh bg-bg bg-opacity-75 md:bg-opacity-100 overflow-auto w-full max-w-lg mx-auto scrollbar scrollbar-thumb-card-bg scrollbar-track-bg-secondary">
       <div className="flex font-wireone items-center w-full max-w-lg shadow-md mb-2 px-5 py-2 bg-card-bg text-bg fixed top-0 z-10">
         <div className="flex-0">
           <div

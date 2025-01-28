@@ -12,7 +12,7 @@
 body {
   /* overflow: hidden; */
   height: 100dvh;
-  @apply bg-bg;
+  @apply bg-card-bg;
 }
 
 a {

@@ -9,7 +9,7 @@ export default [
   },
   {
     path: '/*',
-    element: <div className='flex mt-32 items-center justify-center text-[150px'> 404 </div>
+    element: <div className='flex mt-32 items-center justify-center text-[150px]'> 404 </div>
   }
 ] as RouteObject[];
 
